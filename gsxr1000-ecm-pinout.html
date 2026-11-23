@@ -1,0 +1,209 @@
+<title>GSX-R1000 K1 ECM Pinout</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: workshop reference sheet. One wide connector-face drawing, then the terminal table it indexes. */
+:root {
+  --bg: #f3f4f1; --panel: #ffffff; --fg: #1b2024; --muted: #5d676e; --line: #c3c9cc;
+  --cell: #fbfbf9; --cell-empty: #e6e8e5; --shell: #2c3338; --accent: #0b6fa4; --warn: #a25a00; --warn-bg: #fff3d9;
+  --sel: #ffe27a;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #14181b; --panel: #1c2226; --fg: #e6eaec; --muted: #9aa5ab; --line: #3a444a;
+  --cell: #242c31; --cell-empty: #181d20; --shell: #8a969d; --accent: #5cb8e6; --warn: #f0b860; --warn-bg: #3a2c10;
+  --sel: #6b5600; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #14181b; --panel: #1c2226; --fg: #e6eaec; --muted: #9aa5ab; --line: #3a444a;
+  --cell: #242c31; --cell-empty: #181d20; --shell: #8a969d; --accent: #5cb8e6; --warn: #f0b860; --warn-bg: #3a2c10;
+  --sel: #6b5600; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px; }
+h1 { font-size: 26px; font-weight: 600; margin: 0; text-wrap: balance; }
+h2 { font-size: 17px; font-weight: 600; margin: 0 0 8px; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 70ch; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; min-width: 0; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.seg button { font: 500 13px var(--sans); padding: 7px 12px; background: transparent; color: var(--fg); border: 0; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+.seg button:focus-visible, td button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.viewnote { color: var(--muted); font-size: 13px; }
+.scroll { overflow-x: auto; }
+svg { display: block; min-width: 980px; width: 100%; height: auto; font-family: var(--mono); }
+.shell { fill: none; stroke: var(--shell); stroke-width: 3; }
+.c rect.box { fill: var(--cell); stroke: var(--shell); stroke-width: 1.2; }
+.c.empty rect.box { fill: var(--cell-empty); }
+.c.sel rect.box { fill: var(--sel); }
+.c { cursor: pointer; }
+.num { font-size: 11px; fill: var(--muted); }
+.sig { font-size: 13px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
+.wc { font-size: 10px; fill: var(--fg); }
+.c.empty .sig { fill: var(--muted); font-weight: 400; }
+.cap { font-size: 13px; fill: var(--muted); font-family: var(--sans); text-anchor: middle; }
+.chip { stroke: var(--shell); stroke-width: .8; }
+#detail { margin-top: 12px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 5px; min-height: 22px; font-size: 14px; }
+#detail b { font-family: var(--mono); }
+.warn { background: var(--warn-bg); border: 1px solid var(--warn); border-radius: 6px; padding: 12px 14px; }
+.warn h2 { color: var(--warn); }
+.warn ul, .notes ul { margin: 0; padding-left: 20px; }
+.warn li + li, .notes li + li { margin-top: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+td.m, th.m { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.sel td { background: var(--sel); }
+tr.grp td { background: var(--bg); font-weight: 600; font-size: 13px; }
+.sw { display: inline-block; width: 26px; height: 10px; border: 1px solid var(--shell); vertical-align: middle; margin-right: 6px; }
+.src { color: var(--muted); font-size: 13px; }
+code { font-family: var(--mono); font-size: 13px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Suzuki GSX-R1000 K1/K2 ECM coupler pinout</h1>
+    <p class="sub">Face-on map of the two ECM couplers (34-pin and 26-pin, 60 terminals), built from the 2001 GSX-R1000 service manual: FI system wiring diagram (p. 4-27 and section 11), the ECM coupler drawings in the troubleshooting charts (p. 4-36 to 4-59) and the full harness diagram.</p>
+  </header>
+
+  <section class="panel">
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Viewing side">
+        <button id="v-manual" aria-pressed="true">As drawn in the manual</button>
+        <button id="v-mirror" aria-pressed="false">Mirrored (other side)</button>
+      </div>
+      <span class="viewnote" id="viewnote"></span>
+    </div>
+    <div class="scroll"><svg id="map" viewBox="0 0 1180 330" role="img" aria-label="ECM coupler terminal layout"></svg></div>
+    <div id="detail">Click a terminal for its details.</div>
+  </section>
+
+  <section class="warn">
+    <h2>Check the orientation before you probe or wire anything</h2>
+    <ul>
+      <li>The manual prints the terminal grid with the caption "ECM couplers" and does not say whether you are looking into the ECM's pins or into the harness plug. The two views are mirror images, so use the toggle and confirm with the checks below.</li>
+      <li><b>With the harness plug in hand:</b> terminal 1 is the white/blue wire (ignition coil #1) at one end of a 9-way outer row of the larger plug. Along that row come B, Y, then the four gray injector wires, one empty cavity (8), and yellow/black (9) at the far end. On the smaller plug, terminal 35 is a black/white ground at the end of a 7-way outer row, next to a plain white wire (36).</li>
+      <li><b>On the bare ECM:</b> terminals 18, 26, 27 and 35 are all grounds (E02, E03, E01, E1). They normally show continuity to each other inside the unit. 26 and 27 sit side by side at one end of the 9-way outer row opposite the terminal 1 row, with 18 directly above 26.</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2>Terminal list</h2>
+    <div class="scroll"><table id="tbl"><thead><tr><th class="m">Pin</th><th class="m">Label</th><th>Wire</th><th>Connects to</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="panel notes">
+    <h2>Reading notes</h2>
+    <ul>
+      <li>Row layout: larger coupler 1–9 / 10–17 / 18–25 / 26–34; smaller coupler 35–41 / 42–47 / 48–53 / 54–60. Confirmed against the highlighted terminals in the manual's charts (4–7, 9, 17, 36, 37, 42, 43, 44, 51, 54).</li>
+      <li>Wire colours: B black, Bl blue, Br brown, Dg dark green, G green, Gr gray, Lg light green, O orange, P pink, R red, W white, Y yellow. "Gr/W" means gray with a white tracer.</li>
+      <li>Terminal 47 (SM1B): the FI diagram prints Bl/G, the full harness diagram and the STV actuator coupler show B/Lg. Expect black/light-green on the bike.</li>
+      <li>Terminals 15, 16, 23, 24, 25 and 33 carry wires in the full harness diagram but are not named in the FI diagram. Their numbers come from their position in that drawing, so treat them as probable. 15/16/23/24/25 run to an unlabelled 7-way coupler drawn beside the ECM.</li>
+      <li>MS (21), TECH (56) and AT (60) are the manual's labels. The manual does not spell out their function, so the "connects to" text for those is my reading of the diagram.</li>
+      <li>Terminals shown hatched grey have no wire in any of the manual's diagrams.</li>
+    </ul>
+    <p class="src">Source file: c15345.pdf (Suzuki 2001 GSX-R1000 service manual scan). The '01 and '02 harness diagrams show the same ECM wire order.</p>
+  </section>
+</div>
+
+<script>
+const COL = {B:'#1a1a1a',Bl:'#1f5fd0',Br:'#7a4a21',Dg:'#0f5c2e',G:'#1fa046',Gr:'#8c8c8c',Lg:'#8fdc6a',O:'#f08a1c',P:'#f29ac0',R:'#d42a2a',W:'#f6f6f6',Y:'#f2d21b'};
+// [pin, label, wire, connects-to, flag]
+const P = [
+ [1,'IG1','W/Bl','Ignition coil #1'],[2,'IG2','B','Ignition coil #2'],[3,'IG3','Y','Ignition coil #3'],
+ [4,'#11','Gr/W','Fuel injector #1'],[5,'#21','Gr/B','Fuel injector #2'],[6,'#31','Gr/Y','Fuel injector #3'],[7,'#41','Gr/R','Fuel injector #4'],
+ [8],[9,'F.RLY','Y/B','Fuel pump relay coil'],[10,'IG4','G','Ignition coil #4'],[11],[12],[13],[14],
+ [15,'?','Bl/R','Unlabelled 7-way coupler beside ECM (not in FI diagram)',1],[16,'?','Bl/Y','Unlabelled 7-way coupler beside ECM (not in FI diagram)',1],
+ [17,'+B','O/W','Switched battery power (ignition switch / engine stop circuit)'],
+ [18,'E02','B/W','Ground'],[19,'CLT','B/Y','Clutch lever position switch'],[20,'NT','Bl','Neutral signal (gear position switch)'],
+ [21,'MS','B/Br','Joins the B/Br sensor-ground circuit'],[22,'TS','W/R','Mode selection (dealer mode) coupler'],
+ [23,'?','Bl/W','Unlabelled 7-way coupler beside ECM (not in FI diagram)',1],[24,'?','Bl/B','Unlabelled 7-way coupler beside ECM (not in FI diagram)',1],[25,'?','Bl/G','Unlabelled 7-way coupler beside ECM (not in FI diagram)',1],
+ [26,'E03','B/W','Ground'],[27,'E01','B/W','Ground'],[28,'STA','Y/G','Starter button / starter relay signal'],
+ [29],[30],[31],[32],[33,'?','B/Br','B/Br sensor-ground circuit (position read off harness diagram)',1],[34],
+ [35,'E1','B/W','Ground'],[36,'N+','W','Crankshaft position sensor +'],[37,'G+','B/Y','Camshaft position sensor +'],
+ [38,'MPS','Y','Exhaust valve actuator position sensor signal'],[39,'MO+','B/R','Exhaust valve actuator motor +'],[40,'MO-','R/B','Exhaust valve actuator motor −'],
+ [41,'SM1A','P/W','Secondary throttle valve actuator'],
+ [42,'VM','Y/R','Power from fuel pump relay (injector / pump supply line)'],[43,'N-','G/W','Crankshaft position sensor −'],[44,'G-','Br','Camshaft position sensor −'],
+ [45,'STP','Y/W','Secondary throttle position sensor signal'],[46,'SM2A','W/B','Secondary throttle valve actuator'],
+ [47,'SM1B','B/Lg','Secondary throttle valve actuator (FI diagram prints Bl/G)'],
+ [48,'VCC','R','5 V sensor supply'],[49,'VTA','P/B','Throttle position sensor signal'],[50,'THA','Dg','Intake air temperature sensor'],
+ [51,'THW','B/Bl','Engine coolant temperature sensor'],[52,'PA','G/Y','Atmospheric pressure sensor signal'],[53,'SM2B','G','Secondary throttle valve actuator'],
+ [54,'E2','B/Br','Sensor ground'],[55,'TACO','Y/Bl','Tachometer (speedometer unit)'],[56,'TECH','B/G','Speedometer unit'],
+ [57,'GP','P','Gear position switch signal'],[58,'PM','G/B','Intake air pressure sensor signal'],[59,'DON','B','Tip-over sensor signal'],
+ [60,'AT','O/Y','Labelled AT; destination not traced']
+];
+const byPin = Object.fromEntries(P.map(p => [p[0], p]));
+const ROWS = { L:[[1,9],[10,17],[18,25],[26,34]], R:[[35,41],[42,47],[48,53],[54,60]] };
+const CW = 68, CH = 62, NS = 'http://www.w3.org/2000/svg';
+let mirror = false, sel = null;
+const el = (n, a, t) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (t != null) e.textContent = t; return e; };
+
+function chip(g, x, y, wire) {
+  const [base, tr] = wire.split('/');
+  g.appendChild(el('rect', {x, y, width:24, height:9, fill:COL[base], class:'chip'}));
+  if (tr) g.appendChild(el('rect', {x, y:y+3, width:24, height:3, fill:COL[tr]}));
+}
+function drawCoupler(svg, x0, rows, caption) {
+  const maxN = rows[0][1] - rows[0][0] + 1, W = maxN * CW;
+  rows.forEach(([a, b], r) => {
+    let pins = []; for (let p = a; p <= b; p++) pins.push(p);
+    if (mirror) pins.reverse();
+    const off = (W - pins.length * CW) / 2;
+    pins.forEach((p, i) => {
+      const d = byPin[p], x = x0 + off + i * CW, y = 30 + r * CH, empty = !d[1];
+      const g = el('g', {class:'c' + (empty ? ' empty' : '') + (sel === p ? ' sel' : ''), tabindex:0, 'data-pin':p});
+      g.appendChild(el('title', {}, empty ? `Pin ${p}: no wire` : `Pin ${p} ${d[1]} — ${d[2]} — ${d[3]}`));
+      g.appendChild(el('rect', {class:'box', x, y, width:CW, height:CH}));
+      g.appendChild(el('text', {class:'num', x:x+5, y:y+14}, p));
+      g.appendChild(el('text', {class:'sig', x:x+CW/2, y:y+35}, empty ? '—' : d[1]));
+      if (!empty) { chip(g, x+5, y+45, d[2]); g.appendChild(el('text', {class:'wc', x:x+32, y:y+53}, d[2])); }
+      g.addEventListener('click', () => pick(p));
+      g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(p); } });
+      svg.appendChild(g);
+    });
+  });
+  svg.appendChild(el('text', {class:'cap', x:x0 + W/2, y:30 + 4*CH + 26}, caption));
+}
+function draw() {
+  const svg = document.getElementById('map'); svg.textContent = '';
+  const wl = 9*CW, wr = 7*CW, gap = 60, x0 = (1180 - wl - wr - gap) / 2;
+  if (!mirror) { drawCoupler(svg, x0, ROWS.L, '34-pin coupler · terminals 1–34'); drawCoupler(svg, x0+wl+gap, ROWS.R, '26-pin coupler · terminals 35–60'); }
+  else { drawCoupler(svg, x0, ROWS.R, '26-pin coupler · terminals 35–60'); drawCoupler(svg, x0+wr+gap, ROWS.L, '34-pin coupler · terminals 1–34'); }
+  document.getElementById('viewnote').textContent = mirror
+    ? 'Left-right mirror of the manual drawing: what you see from the opposite face.'
+    : 'Same arrangement as the "ECM couplers" drawing in the manual. Terminal 1 top left.';
+  document.getElementById('v-manual').setAttribute('aria-pressed', String(!mirror));
+  document.getElementById('v-mirror').setAttribute('aria-pressed', String(mirror));
+}
+function sw(wire) {
+  const [b, t] = wire.split('/');
+  const bg = t ? `linear-gradient(${COL[b]} 0 33%, ${COL[t]} 33% 66%, ${COL[b]} 66%)` : COL[b];
+  return `<span class="sw" style="background:${bg}"></span>`;
+}
+function pick(p) {
+  sel = sel === p ? null : p; draw();
+  document.querySelectorAll('#tbl tr.sel').forEach(r => r.classList.remove('sel'));
+  const d = byPin[p], box = document.getElementById('detail');
+  if (sel == null) { box.textContent = 'Click a terminal for its details.'; return; }
+  const row = document.getElementById('r' + p); if (row) row.classList.add('sel');
+  box.innerHTML = d[1] ? `<b>Pin ${p} · ${d[1]}</b> &nbsp; ${sw(d[2])}<code>${d[2]}</code> &nbsp; ${d[3]}${d[4] ? ' <em>(pin number probable)</em>' : ''}`
+                       : `<b>Pin ${p}</b> &nbsp; No wire shown in the manual's diagrams.`;
+}
+function table() {
+  const tb = document.querySelector('#tbl tbody'); let h = '';
+  P.forEach(d => {
+    if (d[0] === 1) h += '<tr class="grp"><td colspan="4">34-pin coupler</td></tr>';
+    if (d[0] === 35) h += '<tr class="grp"><td colspan="4">26-pin coupler</td></tr>';
+    if (!d[1]) return;
+    h += `<tr id="r${d[0]}"><td class="m">${d[0]}</td><td class="m">${d[1]}</td><td class="m">${sw(d[2])}${d[2]}</td><td>${d[3]}${d[4] ? ' <em>(pin number probable)</em>' : ''}</td></tr>`;
+  });
+  h += '<tr><td class="m">8, 11–14, 29–32, 34</td><td class="m">—</td><td>—</td><td>No wire shown</td></tr>';
+  tb.innerHTML = h;
+}
+document.getElementById('v-manual').addEventListener('click', () => { mirror = false; draw(); });
+document.getElementById('v-mirror').addEventListener('click', () => { mirror = true; draw(); });
+table(); draw();
+</script>

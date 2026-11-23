@@ -1,0 +1,4 @@
+resistor_ohm,raw,pin51_volts_measured,c15,note
+5040,754,,set,measured resistor; not known if power-cycled
+2160,559,,set,measured resistor; refitted without power cycle
+505,226,,clear after second power cycle,measured resistor (stream implies 509); first power cycle did not clear c15
