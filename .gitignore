@@ -1,0 +1,11 @@
+# Editor swap and backup files
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
