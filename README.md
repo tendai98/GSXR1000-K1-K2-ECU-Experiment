@@ -415,13 +415,3 @@ Open questions:
 - What the always-set bits 3 and 0 in byte 2 mean.
 
 ---
-
-## Sources
-
-- Suzuki 2001 GSX-R1000 service manual (`gsxr1000.pdf`, from ManualsLib)
-- RevZilla – 2002 GSX-R1000 electrical parts diagram
-- Carmo Electronics – GSX-R1000 K1/K2 ECU part number list
-- gixxer.com – "Gsxr1000 k1 k2 ecu flashing", "Ecu pin out diagram
-  needed", "Found a wire disconnected from the ecu"
-- mr_hollywood – https://sites.google.com/site/mrhollywoodk3 (Denso
-  16-bit ECU documents; processor and pin 21/29 warnings)
